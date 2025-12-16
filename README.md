@@ -43,9 +43,12 @@ A Next.js application for organizing Secret Santa gift exchanges with user authe
      ```
 
 4. **Initialize the database:**
-   - Start the development server: `npm run dev`
-   - Visit `http://localhost:3000/api/init-db` in your browser or use a tool like Postman to make a POST request
-   - This will create all necessary tables
+   ```bash
+   npm run init-db
+   ```
+   This will create all necessary tables in your Neon database.
+   
+   **Note:** When deploying to Vercel, the database is automatically initialized during the build process via the `postbuild` script.
 
 5. **Create an admin user:**
    - Sign up through the application
@@ -105,20 +108,65 @@ UPDATE users SET is_admin = true WHERE email = 'your-email@example.com';
 The randomizer can run automatically on the scheduled date. You have two options:
 
 1. **Manual Execution:** Use the admin panel to run the randomizer manually
-2. **Automatic Execution:** Set up a cron job to call `/api/admin/check-randomizer` daily. This endpoint will automatically run the randomizer if the scheduled date has arrived.
+2. **Automatic Execution:** The `vercel.json` file is already configured with a cron job that calls `/api/admin/check-randomizer` daily at midnight UTC. This endpoint will automatically run the randomizer if the scheduled date has arrived.
 
-For example, if deploying on Vercel, you can add this to `vercel.json`:
+## Deployment to Vercel
 
-```json
-{
-  "crons": [{
-    "path": "/api/admin/check-randomizer",
-    "schedule": "0 0 * * *"
-  }]
-}
-```
+### Prerequisites
+- A Vercel account ([sign up here](https://vercel.com))
+- A Neon database (already set up)
+- Your code pushed to GitHub
 
-This will check daily at midnight UTC if the randomizer should run.
+### Steps
+
+1. **Connect your GitHub repository to Vercel:**
+   - Go to [Vercel Dashboard](https://vercel.com/dashboard)
+   - Click "Add New Project"
+   - Import your GitHub repository (`justin123yu/SecretSanta`)
+
+2. **Configure Environment Variables:**
+   - In the Vercel project settings, go to "Environment Variables"
+   - Add your `DATABASE_URL` from Neon:
+     - **Name:** `DATABASE_URL`
+     - **Value:** Your Neon database connection string
+     - **Environment:** Production, Preview, and Development (select all)
+
+3. **Optional: Set Base URL (for password reset links):**
+   - Add `NEXT_PUBLIC_BASE_URL` environment variable
+   - **Value:** Your Vercel deployment URL (e.g., `https://your-app.vercel.app`)
+   - This ensures password reset links use the correct domain
+
+4. **Deploy:**
+   - Vercel will automatically detect Next.js and deploy
+   - The build process will install dependencies and build the Next.js application
+
+5. **Database Initialization:**
+   The database is **automatically initialized during the Vercel build process**. 
+   
+   When Vercel runs `npm run build`, it automatically executes the `postbuild` script which runs `npm run init-db`. This means:
+   - ✅ Database tables are created automatically on every deployment
+   - ✅ No manual steps required after deployment
+   - ✅ Safe to run multiple times (uses `CREATE TABLE IF NOT EXISTS`)
+   
+   **Manual initialization (if needed):**
+   - Run locally: `npm run init-db` (requires `DATABASE_URL` in your `.env.local`)
+   - Or use the API endpoint: `POST https://your-app.vercel.app/api/init-db`
+
+6. **Create Admin User:**
+   - After deployment, sign up through your Vercel URL
+   - Connect to your Neon database console
+   - Run: `UPDATE users SET is_admin = true WHERE email = 'your-email@example.com';`
+
+### Vercel Configuration
+
+The `vercel.json` file is already configured with:
+- Automatic cron job for randomizer checks (daily at midnight UTC)
+- Build and install commands
+
+### Notes
+- The database initialization runs automatically on each deployment
+- Environment variables are securely stored in Vercel
+- The cron job will automatically check and run the randomizer on scheduled dates
 
 ## Project Structure
 

@@ -6,9 +6,63 @@ if (!process.env.DATABASE_URL) {
 
 export const sql = neon(process.env.DATABASE_URL);
 
+// Check if database is already initialized
+async function isDatabaseInitialized(): Promise<boolean> {
+  try {
+    const result = await sql`
+      SELECT EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'users'
+      ) as users_exists,
+      EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'assignments'
+      ) as assignments_exists,
+      EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'user_info'
+      ) as user_info_exists,
+      EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'randomizer_config'
+      ) as randomizer_config_exists,
+      EXISTS (
+        SELECT FROM information_schema.tables 
+        WHERE table_schema = 'public' 
+        AND table_name = 'password_reset_tokens'
+      ) as password_reset_tokens_exists
+    `;
+    
+    const row = result[0] as any;
+    return (
+      row.users_exists === true &&
+      row.assignments_exists === true &&
+      row.user_info_exists === true &&
+      row.randomizer_config_exists === true &&
+      row.password_reset_tokens_exists === true
+    );
+  } catch (error) {
+    // If we can't check, assume not initialized
+    return false;
+  }
+}
+
 // Initialize database schema
 export async function initDatabase() {
   try {
+    // Check if database is already initialized
+    const alreadyInitialized = await isDatabaseInitialized();
+    if (alreadyInitialized) {
+      console.log('Database already initialized. Skipping...');
+      return;
+    }
+
+    console.log('Initializing database schema...');
+    
     // Create users table
     await sql`
       CREATE TABLE IF NOT EXISTS users (
