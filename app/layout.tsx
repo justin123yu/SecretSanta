@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Secret Santa",
-  description: "A Secret Santa application for organizing gift exchanges",
+  description: "Simple Secret Santa name randomizer",
 };
 
 export default function RootLayout({

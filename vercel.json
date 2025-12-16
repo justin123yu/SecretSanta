@@ -1,12 +1,4 @@
 {
-  "framework": "nextjs",
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
-  "crons": [
-    {
-      "path": "/api/admin/check-randomizer",
-      "schedule": "0 0 * * *"
-    }
-  ]
+  "framework": "nextjs"
 }
 
