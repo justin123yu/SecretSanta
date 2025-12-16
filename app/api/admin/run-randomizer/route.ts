@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/session';
 import { runRandomizer } from '@/lib/randomizer';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST() {
   try {
     await requireAdmin();

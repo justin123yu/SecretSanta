@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resetPasswordWithToken } from '@/lib/password-reset';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const { token, password } = await request.json();

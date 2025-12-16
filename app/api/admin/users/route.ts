@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/session';
 import { getAllUsers } from '@/lib/assignments';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     await requireAdmin();

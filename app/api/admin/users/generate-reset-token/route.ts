@@ -3,6 +3,8 @@ import { requireAdmin } from '@/lib/session';
 import { createPasswordResetToken } from '@/lib/password-reset';
 import { getUserById } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     await requireAdmin();
